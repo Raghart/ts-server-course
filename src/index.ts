@@ -21,7 +21,7 @@ const main = () => {
         </html>`);
     });
 
-    app.get("/admin/reset", (_req: Request, res: Response) => {
+    app.post("/admin/reset", (_req: Request, res: Response) => {
         APICONFIG.fileserverHits = 0;
         res.set("Content-Type", "text/plain").send("OK");
     });
