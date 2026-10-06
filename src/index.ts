@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { middlewareLogResponses, middlewareMetricsInc } from "./middlewares.js";
 import { APICONFIG } from "./config.js";
+import { chirpyVerifierHandler } from "./httpHandlers.js";
 
 const main = () => {
     const app = express();
@@ -26,6 +27,7 @@ const main = () => {
         res.set("Content-Type", "text/plain").send("OK");
     });
 
+    app.post("/api/validate_chirp", chirpyVerifierHandler);
     app.use("/api", middlewareLogResponses);
     app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 
