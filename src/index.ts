@@ -6,22 +6,22 @@ const main = () => {
     const app = express();
     const port = 8080;
 
-    app.get("/healthz", (_req: Request, res: Response) => {
+    app.get("/api/healthz", (_req: Request, res: Response) => {
         res.set("Content-Type", "text/plain");
         res.send("OK")
     });
 
-    app.get("/metrics", (_req: Request, res: Response) => {
+    app.get("/api/metrics", (_req: Request, res: Response) => {
         res.set("Content-Type", "text/plain");
         res.send(`Hits: ${APICONFIG.fileserverHits}`);
     });
 
-    app.get("/reset", (_req: Request, res: Response) => {
+    app.get("/api/reset", (_req: Request, res: Response) => {
         APICONFIG.fileserverHits = 0;
         res.set("Content-Type", "text/plain").send("OK");
     });
 
-    app.use(middlewareLogResponses);
+    app.use("/api", middlewareLogResponses);
     app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 
     app.listen(port, () => {
