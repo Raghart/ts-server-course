@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
-import { middlewareLogResponses } from "./middlewares.js";
+import { middlewareLogResponses, middlewareMetricsInc } from "./middlewares.js";
+import { APICONFIG } from "./config.js";
 
 const main = () => {
     const app = express();
@@ -10,8 +11,18 @@ const main = () => {
         res.send("OK")
     });
 
+    app.get("/metrics", (_req: Request, res: Response) => {
+        res.set("Content-Type", "text/plain");
+        res.send(`Hits: ${APICONFIG.fileserverHits}`);
+    });
+
+    app.get("/reset", (_req: Request, res: Response) => {
+        APICONFIG.fileserverHits = 0;
+        res.set("Content-Type", "text/plain").send("OK");
+    });
+
     app.use(middlewareLogResponses);
-    app.use("/app", express.static("./src/app"));
+    app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 
     app.listen(port, () => {
         console.log(`Running on http://localhost:${port}/`)
