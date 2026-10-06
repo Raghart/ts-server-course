@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { middlewareLogResponses } from "./middlewares.js";
 
 const main = () => {
     const app = express();
@@ -9,6 +10,7 @@ const main = () => {
         res.send("OK")
     });
 
+    app.use(middlewareLogResponses);
     app.use("/app", express.static("./src/app"));
 
     app.listen(port, () => {
