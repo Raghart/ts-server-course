@@ -11,12 +11,17 @@ const main = () => {
         res.send("OK")
     });
 
-    app.get("/api/metrics", (_req: Request, res: Response) => {
-        res.set("Content-Type", "text/plain");
-        res.send(`Hits: ${APICONFIG.fileserverHits}`);
+    app.get("/admin/metrics", (_req: Request, res: Response) => {
+        res.set("Content-Type", "text/html; charset=utf-8");
+        res.send(`<html>
+        <body>
+            <h1>Welcome, Chirpy Admin</h1>
+            <p>Chirpy has been visited ${APICONFIG.fileserverHits} times!</p>
+        </body>
+        </html>`);
     });
 
-    app.get("/api/reset", (_req: Request, res: Response) => {
+    app.get("/admin/reset", (_req: Request, res: Response) => {
         APICONFIG.fileserverHits = 0;
         res.set("Content-Type", "text/plain").send("OK");
     });
