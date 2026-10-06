@@ -7,7 +7,7 @@ const main = () => {
     app.use(express.static("."));
 
     app.listen(port, () => {
-        console.log(`Listening to port ${port}`)
+        console.log(`Running on http://localhost:${port}/`)
     });
 };
 main();
