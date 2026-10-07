@@ -6,7 +6,8 @@ import { chirpyVerifierHandler } from "./httpHandlers.js";
 const main = () => {
     const app = express();
     const port = 8080;
-
+    app.use(express.json());
+    
     app.get("/api/healthz", (_req: Request, res: Response) => {
         res.set("Content-Type", "text/plain");
         res.send("OK")
