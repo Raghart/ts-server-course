@@ -28,7 +28,11 @@ export const chirpyMetricsHandler = (_req: Request, res: Response) => {
     </html>`);
 };
 
-export const chirpyResetMetricsHandler = (req: Request, res: Response) => {
+export const chirpyResetMetricsHandler = (_req: Request, res: Response) => {
     APICONFIG.fileserverHits = 0;
+    res.set("Content-Type", "text/plain").send("OK");
+};
+
+export const chirpyHealthHandler = (req: Request, res: Response) => {
     res.set("Content-Type", "text/plain").send("OK");
 };
