@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
+import { InvalidLengthError } from "./errorTypes.js";
 
 export const chirpyVerifierHandler = (req: Request, res: Response) => {
     type JsonStruct = {
@@ -8,7 +9,7 @@ export const chirpyVerifierHandler = (req: Request, res: Response) => {
 
     const params: JsonStruct = req.body;
     if (params.body.length > 140) {
-        throw new Error("Chirp is too long");
+        throw new InvalidLengthError("Chirp is too long. Max length is 140");
         res.status(400).header("Content-Type", "application/json").send({
             "error": "Chirp is too long"
         });
@@ -49,7 +50,13 @@ export const chirpyHealthHandler = (_req: Request, res: Response) => {
 
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
     console.log(err);
-    res.status(500).send({
-        "error": "Something went wrong on our end",
-    });
+    if (err instanceof InvalidLengthError) {
+        res.status(400).send({
+            "error": err.message,
+        });
+    } else {
+        res.status(500).send({
+            "error": "Something went wrong on our end",
+        });
+    }
 };
