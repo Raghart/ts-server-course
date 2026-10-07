@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
-import { InvalidLengthError } from "./errorTypes.js";
+import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
 
 export const chirpyVerifierHandler = (req: Request, res: Response) => {
     type JsonStruct = {
@@ -52,6 +52,18 @@ export const errorHandler = (err: Error, _req: Request, res: Response, _next: Ne
     console.log(err);
     if (err instanceof InvalidLengthError) {
         res.status(400).send({
+            "error": err.message,
+        });
+    } if (err instanceof UserNotAuthenticatedError) {
+        res.status(401).send({
+            "error": err.message,
+        });
+    } if (err instanceof UserForbiddenError) {
+        res.status(403).send({
+            "error": err.message,
+        });
+    } if (err instanceof NotFoundError) {
+        res.status(404).send({
             "error": err.message,
         });
     } else {
