@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import { middlewareLogResponses, middlewareMetricsInc } from "./middlewares.js";
-import { APICONFIG } from "./config.js";
-import { chirpyMetricsHandler, chirpyVerifierHandler } from "./httpHandlers.js";
+import { chirpyMetricsHandler, chirpyResetMetricsHandler, chirpyVerifierHandler } from "./httpHandlers.js";
 
 const main = () => {
     const app = express();
@@ -14,12 +13,7 @@ const main = () => {
     });
 
     app.get("/admin/metrics", chirpyMetricsHandler);
-
-    app.post("/admin/reset", (_req: Request, res: Response) => {
-        APICONFIG.fileserverHits = 0;
-        res.set("Content-Type", "text/plain").send("OK");
-    });
-
+    app.post("/admin/reset", chirpyResetMetricsHandler);
     app.post("/api/validate_chirp", chirpyVerifierHandler);
     app.use("/api", middlewareLogResponses);
     app.use("/app", middlewareMetricsInc, express.static("./src/app"));
@@ -28,4 +22,5 @@ const main = () => {
         console.log(`Running on http://localhost:${port}/`)
     });
 };
+
 main();
