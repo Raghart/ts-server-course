@@ -7,15 +7,24 @@ export const chirpyVerifierHandler = (req: Request, res: Response) => {
     };
 
     const params: JsonStruct = req.body;
-    console.log(params);
     if (params.body.length > 140) {
         res.status(400).header("Content-Type", "application/json").send({
             "error": "Chirp is too long"
         });
+        return;
     };
 
+    const parsedBody = params.body.split(" ").map((word) => {
+        const badWords = ["kerfuffle", "sharbert", "fornax"];
+        if (badWords.includes(word.toLowerCase())) {
+            return "****";
+        };
+
+        return word;
+    }).join(" ");
+
     res.status(200).header("Content-Type", "application/json").send({
-        "valid": true,
+        "cleanedBody": parsedBody,
     });
 };
 
