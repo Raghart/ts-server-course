@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 
 export const chirpyVerifierHandler = (req: Request, res: Response) => {
@@ -8,6 +8,7 @@ export const chirpyVerifierHandler = (req: Request, res: Response) => {
 
     const params: JsonStruct = req.body;
     if (params.body.length > 140) {
+        throw new Error("Chirp is too long");
         res.status(400).header("Content-Type", "application/json").send({
             "error": "Chirp is too long"
         });
@@ -42,6 +43,13 @@ export const chirpyResetMetricsHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/plain").send("OK");
 };
 
-export const chirpyHealthHandler = (req: Request, res: Response) => {
+export const chirpyHealthHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/plain").send("OK");
+};
+
+export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.log(err);
+    res.status(500).send({
+        "error": "Something went wrong on our end",
+    });
 };
