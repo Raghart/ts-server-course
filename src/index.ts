@@ -3,23 +3,26 @@ import { middlewareLogResponses, middlewareMetricsInc } from "./middlewares.js";
 import { chirpyHealthHandler, chirpyMetricsHandler, chirpyResetMetricsHandler, 
     chirpyVerifierHandler, 
     errorHandler} from "./httpHandlers.js";
+import postgres from "postgres";
+import { APICONFIG } from "./config.js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
 
-const main = () => {
-    const app = express();
-    const port = 8080;
-    app.use(express.json());
-    
-    app.get("/api/healthz", chirpyHealthHandler);
-    app.get("/admin/metrics", chirpyMetricsHandler);
-    app.post("/admin/reset", chirpyResetMetricsHandler);
-    app.post("/api/validate_chirp", chirpyVerifierHandler);
-    app.use("/api", middlewareLogResponses);
-    app.use("/app", middlewareMetricsInc, express.static("./src/app"));
-    app.use(errorHandler);
+const migrationClient = postgres(APICONFIG.dbUrl, { max: 1 });
+await migrate(drizzle(migrationClient), {
+    migrationsFolder: "src/db/migrations",
+});
+const app = express();
+app.use(express.json());
 
-    app.listen(port, () => {
-        console.log(`Running on http://localhost:${port}/`)
-    });
-};
+app.get("/api/healthz", chirpyHealthHandler);
+app.get("/admin/metrics", chirpyMetricsHandler);
+app.post("/admin/reset", chirpyResetMetricsHandler);
+app.post("/api/validate_chirp", chirpyVerifierHandler);
+app.use("/api", middlewareLogResponses);
+app.use("/app", middlewareMetricsInc, express.static("./src/app"));
+app.use(errorHandler);
 
-main();
+app.listen(APICONFIG.port, () => {
+    console.log(`Running on http://localhost:${APICONFIG.port}/`)
+});
