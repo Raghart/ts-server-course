@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
+import { createUser, resetUsers } from "./db/queries/users.js";
+import { NewUser } from "./db/schema.js";
 
 export const chirpyVerifierHandler = (req: Request, res: Response) => {
     type JsonStruct = {
@@ -40,12 +42,28 @@ export const chirpyMetricsHandler = (_req: Request, res: Response) => {
 };
 
 export const chirpyResetMetricsHandler = (_req: Request, res: Response) => {
+    if (APICONFIG.platform !== "dev") {
+        res.status(403).send("Forbidden");
+        return;
+    };
+
     APICONFIG.fileserverHits = 0;
+    resetUsers();
     res.set("Content-Type", "text/plain").send("OK");
 };
 
 export const chirpyHealthHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/plain").send("OK");
+};
+
+export const createrUserHandler = async (req: Request, res: Response) => {
+    type RequestUser = {
+        email: string;
+    }
+    
+    const newUser: RequestUser = req.body;
+    const createdUser = await createUser({ email: newUser.email });
+    res.status(201).send(createdUser);
 };
 
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {

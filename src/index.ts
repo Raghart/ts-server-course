@@ -2,6 +2,7 @@ import express from "express";
 import { middlewareLogResponses, middlewareMetricsInc } from "./middlewares.js";
 import { chirpyHealthHandler, chirpyMetricsHandler, chirpyResetMetricsHandler, 
     chirpyVerifierHandler, 
+    createrUserHandler, 
     errorHandler} from "./httpHandlers.js";
 import postgres from "postgres";
 import { APICONFIG } from "./config.js";
@@ -19,6 +20,7 @@ app.get("/api/healthz", chirpyHealthHandler);
 app.get("/admin/metrics", chirpyMetricsHandler);
 app.post("/admin/reset", chirpyResetMetricsHandler);
 app.post("/api/validate_chirp", chirpyVerifierHandler);
+app.post("/api/users", createrUserHandler);
 app.use("/api", middlewareLogResponses);
 app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 app.use(errorHandler);
