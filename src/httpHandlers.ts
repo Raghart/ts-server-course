@@ -2,35 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
 import { createUser, resetUsers } from "./db/queries/users.js";
-import { NewUser } from "./db/schema.js";
-
-export const chirpyVerifierHandler = (req: Request, res: Response) => {
-    type JsonStruct = {
-        body: string;
-    };
-
-    const params: JsonStruct = req.body;
-    if (params.body.length > 140) {
-        throw new InvalidLengthError("Chirp is too long. Max length is 140");
-        res.status(400).header("Content-Type", "application/json").send({
-            "error": "Chirp is too long"
-        });
-        return;
-    };
-
-    const parsedBody = params.body.split(" ").map((word) => {
-        const badWords = ["kerfuffle", "sharbert", "fornax"];
-        if (badWords.includes(word.toLowerCase())) {
-            return "****";
-        };
-
-        return word;
-    }).join(" ");
-
-    res.status(200).header("Content-Type", "application/json").send({
-        "cleanedBody": parsedBody,
-    });
-};
+import { createChirp } from "./db/queries/chirps.js";
 
 export const chirpyMetricsHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/html; charset=utf-8").send(`<html>
@@ -64,6 +36,38 @@ export const createrUserHandler = async (req: Request, res: Response) => {
     const newUser: RequestUser = req.body;
     const createdUser = await createUser({ email: newUser.email });
     res.status(201).send(createdUser);
+};
+
+export const createChirpHandler = async (req: Request, res: Response) => {
+    type Chirp = {
+        body: string;
+        userId: string;
+    };
+
+    const requestChip: Chirp = req.body;
+    if (requestChip.body.length > 140) {
+        throw new InvalidLengthError("Chirp is too long. Max length is 140");
+        res.status(400).header("Content-Type", "application/json").send({
+            "error": "Chirp is too long"
+        });
+        return;
+    };
+
+    const parsedBody = requestChip.body.split(" ").map((word) => {
+        const badWords = ["kerfuffle", "sharbert", "fornax"];
+        if (badWords.includes(word.toLowerCase())) {
+            return "****";
+        };
+
+        return word;
+    }).join(" ");
+
+    const createdChirp = await createChirp({
+        body: parsedBody,
+        userId: requestChip.userId,
+    });
+
+    res.status(201).send(createdChirp);
 };
 
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
