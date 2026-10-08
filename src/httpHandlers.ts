@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
-import { createUser, resetUsers } from "./db/queries/users.js";
+import { createUser, getUserByEmail, resetUsers } from "./db/queries/users.js";
 import { createChirp, getAllChirps, getChirpById } from "./db/queries/chirps.js";
 import { checkPasswordHash, hashPassword } from "./auth.js";
 import { RequestUser } from "./db/schema.js";
@@ -44,7 +44,11 @@ export const createrUserHandler = async (req: Request, res: Response) => {
 export const loginUserHandler = async (req: Request, res: Response) => {
     const userToCheck: RequestUser = req.body;
     
-    
+    const dbUser = await getUserByEmail(userToCheck.email);
+    if (!dbUser) {
+        res.status(401).send("incorrect email or password");
+        return;
+    }
 };
 
 export const createChirpHandler = async (req: Request, res: Response) => {
