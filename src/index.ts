@@ -3,7 +3,8 @@ import { middlewareLogResponses, middlewareMetricsInc } from "./middlewares.js";
 import { chirpyHealthHandler, chirpyMetricsHandler, chirpyResetMetricsHandler, 
     createChirpHandler, 
     createrUserHandler, 
-    errorHandler} from "./httpHandlers.js";
+    errorHandler,
+    getAllChirpsHandler} from "./httpHandlers.js";
 import postgres from "postgres";
 import { APICONFIG } from "./config.js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -20,6 +21,7 @@ app.get("/api/healthz", chirpyHealthHandler);
 app.get("/admin/metrics", chirpyMetricsHandler);
 app.post("/admin/reset", chirpyResetMetricsHandler);
 app.post("/api/users", createrUserHandler);
+app.get("/api/chirps", getAllChirpsHandler);
 app.post("/api/chirps", createChirpHandler);
 app.use("/api", middlewareLogResponses);
 app.use("/app", middlewareMetricsInc, express.static("./src/app"));

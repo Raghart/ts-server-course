@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
 import { createUser, resetUsers } from "./db/queries/users.js";
-import { createChirp } from "./db/queries/chirps.js";
+import { createChirp, getAllChirps } from "./db/queries/chirps.js";
 
 export const chirpyMetricsHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/html; charset=utf-8").send(`<html>
@@ -68,6 +68,11 @@ export const createChirpHandler = async (req: Request, res: Response) => {
     });
 
     res.status(201).send(createdChirp);
+};
+
+export const getAllChirpsHandler = async (_req: Request, res: Response) => {
+    const allChirps = await getAllChirps();
+    res.status(200).send(allChirps);
 };
 
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
