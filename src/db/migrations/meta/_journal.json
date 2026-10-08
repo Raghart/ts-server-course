@@ -15,6 +15,13 @@
       "when": 1791422660904,
       "tag": "0001_clumsy_kid_colt",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791498467843,
+      "tag": "0002_vengeful_captain_britain",
+      "breakpoints": true
     }
   ]
 }

@@ -5,7 +5,8 @@ import { chirpyHealthHandler, chirpyMetricsHandler, chirpyResetMetricsHandler,
     createrUserHandler, 
     errorHandler,
     getAllChirpsHandler,
-    getSingleChirpHandler} from "./httpHandlers.js";
+    getSingleChirpHandler,
+    loginUserHandler} from "./httpHandlers.js";
 import postgres from "postgres";
 import { APICONFIG } from "./config.js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -25,6 +26,7 @@ app.post("/api/users", createrUserHandler);
 app.get("/api/chirps", getAllChirpsHandler);
 app.get("/api/chirps/:chirpId", getSingleChirpHandler);
 app.post("/api/chirps", createChirpHandler);
+app.post("/api/login", loginUserHandler);
 app.use("/api", middlewareLogResponses);
 app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 app.use(errorHandler);

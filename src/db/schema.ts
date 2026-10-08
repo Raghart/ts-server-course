@@ -5,6 +5,7 @@ export const users = pgTable("users", {
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date()),
     email: varchar("email", { length: 256 }).unique().notNull(),
+    hashed_password: varchar("hashed_password").notNull(),
 });
 
 export const chirps = pgTable("chirps", {
@@ -18,3 +19,8 @@ export const chirps = pgTable("chirps", {
 export type NewUser = typeof users.$inferInsert;
 
 export type NewChirp = typeof chirps.$inferInsert;
+
+export type RequestUser = {
+    email: string;
+    password: string;
+}

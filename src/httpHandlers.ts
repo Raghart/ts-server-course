@@ -3,6 +3,8 @@ import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
 import { createUser, resetUsers } from "./db/queries/users.js";
 import { createChirp, getAllChirps, getChirpById } from "./db/queries/chirps.js";
+import { checkPasswordHash, hashPassword } from "./auth.js";
+import { RequestUser } from "./db/schema.js";
 
 export const chirpyMetricsHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/html; charset=utf-8").send(`<html>
@@ -29,13 +31,20 @@ export const chirpyHealthHandler = (_req: Request, res: Response) => {
 };
 
 export const createrUserHandler = async (req: Request, res: Response) => {
-    type RequestUser = {
-        email: string;
-    }
-    
     const newUser: RequestUser = req.body;
-    const createdUser = await createUser({ email: newUser.email });
+    const passwordHashed = await hashPassword(newUser.password);
+    const createdUser = await createUser({ 
+        email: newUser.email,
+        hashed_password: passwordHashed,
+    });
+
     res.status(201).send(createdUser);
+};
+
+export const loginUserHandler = async (req: Request, res: Response) => {
+    const userToCheck: RequestUser = req.body;
+    
+    
 };
 
 export const createChirpHandler = async (req: Request, res: Response) => {
