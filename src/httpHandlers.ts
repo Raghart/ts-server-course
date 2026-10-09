@@ -48,7 +48,19 @@ export const loginUserHandler = async (req: Request, res: Response) => {
     if (!dbUser) {
         res.status(401).send("incorrect email or password");
         return;
+    };
+
+    if (!await checkPasswordHash(userToCheck.password, dbUser.hashed_password!)) {
+        res.status(401).send("incorrect email or password");
+        return;
     }
+
+    res.status(200).send({
+        id: dbUser.id,
+        email: dbUser.email,
+        createdAt: dbUser.createdAt,
+        updatedAt: dbUser.updatedAt,
+    })
 };
 
 export const createChirpHandler = async (req: Request, res: Response) => {
