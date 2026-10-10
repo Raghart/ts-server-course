@@ -1,6 +1,7 @@
 import argon2 from "argon2";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { UserNotAuthenticatedError } from "./errorTypes.js";
+import { Request } from "express";
 
 export const hashPassword = (password: string) : Promise<string> => {
     return argon2.hash(password);
@@ -50,4 +51,18 @@ export const validateJWT = (tokenString: string, secret: string): string => {
     }
 
     return decoded.sub;
+};
+
+export const getBearerToken = (req: Request) : string => {
+    const rawAuthentication = req.get("Authorization");
+    if (!rawAuthentication) {
+        throw new UserNotAuthenticatedError("Invalid request");
+    };
+
+    const authenticationArray = rawAuthentication.split(" ");
+    if (authenticationArray.length != 2) {
+        throw new UserNotAuthenticatedError("Invalid request");
+    };
+
+    return authenticationArray[1];
 };

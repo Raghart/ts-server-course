@@ -4,8 +4,10 @@ import {
   checkPasswordHash,
   makeJWT,
   validateJWT,
+  getBearerToken,
 } from "./auth.js";
 import { UserNotAuthenticatedError } from "./errorTypes.js";
+import { Request } from "express";
 
 describe("Password Hashing", () => {
   const password1 = "correctPassword123!";
@@ -69,5 +71,24 @@ describe("JWT Functions", () => {
     expect(() => validateJWT(validToken, wrongSecret)).toThrow(
       UserNotAuthenticatedError,
     );
+  });
+});
+
+describe("Extract bearer token from request", () => {
+  let request : Request;
+  beforeAll(() => {
+    request = {
+    get: (headerName: string) => {
+      if (headerName === "Authorization") {
+        return "Bearer TOKEN";
+      }
+      return undefined;
+    }
+  } as Request;
+  });
+
+  it("should extract the bearer token from the request", () => {
+    const result = getBearerToken(request);
+    expect(result).toBe("TOKEN");
   });
 });

@@ -23,4 +23,5 @@ export type NewChirp = typeof chirps.$inferInsert;
 export type RequestUser = {
     email: string;
     password: string;
+    expiresInSeconds?: number;
 }

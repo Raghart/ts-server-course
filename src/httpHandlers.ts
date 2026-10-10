@@ -3,7 +3,7 @@ import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
 import { createUser, getUserByEmail, resetUsers } from "./db/queries/users.js";
 import { createChirp, getAllChirps, getChirpById } from "./db/queries/chirps.js";
-import { checkPasswordHash, hashPassword } from "./auth.js";
+import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, validateJWT } from "./auth.js";
 import { RequestUser } from "./db/schema.js";
 
 export const chirpyMetricsHandler = (_req: Request, res: Response) => {
@@ -53,21 +53,32 @@ export const loginUserHandler = async (req: Request, res: Response) => {
     if (!await checkPasswordHash(userToCheck.password, dbUser.hashed_password!)) {
         res.status(401).send("incorrect email or password");
         return;
+    };
+
+    let expiresInSeconds = 3600;
+
+    if (userToCheck?.expiresInSeconds) {
+        expiresInSeconds = userToCheck.expiresInSeconds > 3600 ? 3600 : userToCheck.expiresInSeconds;
     }
+
+    const tokenJWT = makeJWT(dbUser.id!, expiresInSeconds, APICONFIG.jwtSecret);
 
     res.status(200).send({
         id: dbUser.id,
         email: dbUser.email,
         createdAt: dbUser.createdAt,
         updatedAt: dbUser.updatedAt,
+        token: tokenJWT,
     })
 };
 
 export const createChirpHandler = async (req: Request, res: Response) => {
     type Chirp = {
         body: string;
-        userId: string;
     };
+
+    const parsedToken = getBearerToken(req);
+    const jwtUserId = validateJWT(parsedToken, APICONFIG.jwtSecret);
 
     const requestChip: Chirp = req.body;
     if (requestChip.body.length > 140) {
@@ -89,7 +100,7 @@ export const createChirpHandler = async (req: Request, res: Response) => {
 
     const createdChirp = await createChirp({
         body: parsedBody,
-        userId: requestChip.userId,
+        userId: jwtUserId,
     });
 
     res.status(201).send(createdChirp);

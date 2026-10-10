@@ -4,6 +4,7 @@ type APIConfig = {
     port: number;
     migrationDirectory: string;
     platform: string;
+    jwtSecret: string;
 };
 
 process.loadEnvFile();
@@ -14,4 +15,5 @@ export const APICONFIG: APIConfig = {
     port: Number(process.env.PORT ?? 8080),
     migrationDirectory: "src/db/migrations",
     platform: process.env.PLATFORM ?? "",
+    jwtSecret: process.env.SECRET ?? "",
 }
