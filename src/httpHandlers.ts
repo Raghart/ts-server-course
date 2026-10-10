@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
-import { createUser, getUserByEmail, getUserByRefreshToken, resetUsers } from "./db/queries/users.js";
+import { createUser, getUserByEmail, getUserByRefreshToken, resetUsers, updateUserById } from "./db/queries/users.js";
 import { createChirp, getAllChirps, getChirpById } from "./db/queries/chirps.js";
 import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "./auth.js";
 import { RequestUser } from "./db/schema.js";
@@ -157,6 +157,22 @@ export const revokeRefreshTokenHandler = async (req: Request, res: Response) => 
     await revokeRefreshToken(refreshToken);
 
     res.status(204).send();
+};
+
+export const replaceUserInformationHandler = async (req: Request, res: Response) => {
+    const acessToken = getBearerToken(req);
+    const requeseUser: RequestUser = req.body;
+
+    const userID = validateJWT(acessToken, APICONFIG.jwtSecret);
+    
+    const updatedUser = await updateUserById(userID, requeseUser);
+
+    res.status(200).send({
+        id: updatedUser.id,
+        email: updatedUser.email,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+    })
 };
 
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {

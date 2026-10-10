@@ -7,6 +7,7 @@ import { checkRefreshTokenHandler, chirpyHealthHandler, chirpyMetricsHandler, ch
     getAllChirpsHandler,
     getSingleChirpHandler,
     loginUserHandler,
+    replaceUserInformationHandler,
     revokeRefreshTokenHandler} from "./httpHandlers.js";
 import postgres from "postgres";
 import { APICONFIG } from "./config.js";
@@ -24,6 +25,7 @@ app.get("/api/healthz", chirpyHealthHandler);
 app.get("/admin/metrics", chirpyMetricsHandler);
 app.post("/admin/reset", chirpyResetMetricsHandler);
 app.post("/api/users", createrUserHandler);
+app.put("/api/users", replaceUserInformationHandler)
 app.get("/api/chirps", getAllChirpsHandler);
 app.get("/api/chirps/:chirpId", getSingleChirpHandler);
 app.post("/api/chirps", createChirpHandler);
