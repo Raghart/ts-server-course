@@ -211,6 +211,11 @@ export const upgradeUserChirpyHandler = async (req: Request, res: Response) => {
         },
     };
 
+    const key = getBearerToken(req);
+    if (APICONFIG.polkaApiKey !== key) {
+        return res.status(401).send();
+    }
+
     const webhookData: ChirpyUpgrade = req.body;
     if (webhookData.event !== "user.upgraded") {
         return res.status(204).send();
