@@ -162,24 +162,23 @@ export const revokeRefreshTokenHandler = async (req: Request, res: Response) => 
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
     console.log(err);
     if (err instanceof InvalidLengthError) {
-        res.status(400).send({
-            "error": err.message,
-        });
-    } else if (err instanceof UserNotAuthenticatedError) {
-        res.status(401).send({
-            "error": err.message,
-        });
-    } else if (err instanceof UserForbiddenError) {
-        res.status(403).send({
-            "error": err.message,
-        });
-    } else if (err instanceof NotFoundError) {
-        res.status(404).send({
-            "error": err.message,
-        });
-    } else {
-        res.status(500).send({
-            "error": "Something went wrong on our end",
-        });
-    }
+        return res.status(400).send({"error": err.message });
+    };
+    
+    if (err instanceof UserNotAuthenticatedError) {
+        return res.status(401).send({ "error": err.message });
+    };
+
+    if (err instanceof UserForbiddenError) {
+        return res.status(403).send({ "error": err.message });
+    }; 
+    
+    if (err instanceof NotFoundError) {
+        return res.status(404).send({ "error": err.message });
+    }  
+    
+    return res.status(500).send({
+        "error": "Something went wrong on our end",
+    });
+    
 };
