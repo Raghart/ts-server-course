@@ -111,8 +111,14 @@ export const createChirpHandler = async (req: Request, res: Response) => {
     res.status(201).send(createdChirp);
 };
 
-export const getAllChirpsHandler = async (_req: Request, res: Response) => {
-    const allChirps = await getAllChirps();
+export const getAllChirpsHandler = async (req: Request, res: Response) => {
+    let authorId = "";
+    let authorQuery = req.query.authorId;
+    if (typeof authorQuery === "string") {
+        authorId = authorQuery;
+    };
+
+    const allChirps = await getAllChirps(authorId);
     res.status(200).send(allChirps);
 };
 

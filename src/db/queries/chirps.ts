@@ -7,9 +7,12 @@ export const createChirp = async (chirp: NewChirp) => {
     return result;
 };
 
-export const getAllChirps = async () => {
-    const dbChirps = await db.select().from(chirps).orderBy(chirps.createdAt);
-    return dbChirps;
+export const getAllChirps = async (authorId: string) => {
+    if (authorId !== "") {
+        return await db.select().from(chirps).where(eq(chirps.userId, authorId));
+    }
+    
+    return await db.select().from(chirps).orderBy(chirps.createdAt);
 };
 
 export const getChirpById = async (id: string) : Promise<NewChirp | undefined> => {
