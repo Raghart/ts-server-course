@@ -12,3 +12,9 @@ export const getRefreshToken = async (token: string) : Promise<NewRefreshToken |
     const [result] = await db.select().from(refreshTokens).where(eq(refreshTokens.token, token));
     return result;
 }
+
+export const revokeRefreshToken = async (token: string) => {
+    await db.update(refreshTokens).set({ 
+        revokedAt: new Date(), 
+        updatedAt: new Date() }).where(eq(refreshTokens.token, token));
+};

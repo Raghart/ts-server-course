@@ -5,7 +5,7 @@ import { createUser, getUserByEmail, getUserByRefreshToken, resetUsers } from ".
 import { createChirp, getAllChirps, getChirpById } from "./db/queries/chirps.js";
 import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "./auth.js";
 import { RequestUser } from "./db/schema.js";
-import { createRefreshToken, getRefreshToken } from "./db/queries/refreshTokens.js";
+import { createRefreshToken, getRefreshToken, revokeRefreshToken } from "./db/queries/refreshTokens.js";
 
 export const chirpyMetricsHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/html; charset=utf-8").send(`<html>
@@ -64,7 +64,7 @@ export const loginUserHandler = async (req: Request, res: Response) => {
         token: makeRefreshToken(),
         userId: dbUser.id,
         expiresAt: expDate,
-    })
+    });
 
     res.status(200).send({
         id: dbUser.id,
@@ -152,21 +152,28 @@ export const checkRefreshTokenHandler = async (req: Request, res: Response) => {
     });
 };
 
+export const revokeRefreshTokenHandler = async (req: Request, res: Response) => {
+    const refreshToken = getBearerToken(req);
+    await revokeRefreshToken(refreshToken);
+
+    res.status(204).send();
+};
+
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
     console.log(err);
     if (err instanceof InvalidLengthError) {
         res.status(400).send({
             "error": err.message,
         });
-    } if (err instanceof UserNotAuthenticatedError) {
+    } else if (err instanceof UserNotAuthenticatedError) {
         res.status(401).send({
             "error": err.message,
         });
-    } if (err instanceof UserForbiddenError) {
+    } else if (err instanceof UserForbiddenError) {
         res.status(403).send({
             "error": err.message,
         });
-    } if (err instanceof NotFoundError) {
+    } else if (err instanceof NotFoundError) {
         res.status(404).send({
             "error": err.message,
         });
