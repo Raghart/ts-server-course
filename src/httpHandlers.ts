@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
-import { createUser, getUserByEmail, getUserByRefreshToken, resetUsers, updateUserById } from "./db/queries/users.js";
+import { createUser, getUserByEmail, getUserByRefreshToken, resetUsers, updateUserById, upgradeUserChirpyById } from "./db/queries/users.js";
 import { createChirp, deleteChirpById, getAllChirps, getChirpById } from "./db/queries/chirps.js";
 import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "./auth.js";
 import { RequestUser } from "./db/schema.js";
@@ -73,6 +73,7 @@ export const loginUserHandler = async (req: Request, res: Response) => {
         updatedAt: dbUser.updatedAt,
         token: tokenJWT,
         refreshToken: refreshToken.token,
+        isChirpyRed: dbUser.isChirpyRed,
     })
 };
 
@@ -172,6 +173,7 @@ export const replaceUserInformationHandler = async (req: Request, res: Response)
         email: updatedUser.email,
         createdAt: updatedUser.createdAt,
         updatedAt: updatedUser.updatedAt,
+        isChirpyRed: updatedUser.isChirpyRed,
     })
 };
 
@@ -197,6 +199,27 @@ export const deleteChirpByIdHandler = async (req: Request, res: Response) => {
     if (!deletedChirp) {
         return res.status(404).send("Not Found");
     };
+
+    res.status(204).send();
+};
+
+export const upgradeUserChirpyHandler = async (req: Request, res: Response) => {
+    type ChirpyUpgrade = {
+        event: string;
+        data: {
+            userId: string;
+        },
+    };
+
+    const webhookData: ChirpyUpgrade = req.body;
+    if (webhookData.event !== "user.upgraded") {
+        return res.status(204).send();
+    };
+
+    const upgradedUser = await upgradeUserChirpyById(webhookData.data.userId);
+    if (!upgradedUser) {
+        return res.status(404).send();
+    }
 
     res.status(204).send();
 };

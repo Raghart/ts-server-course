@@ -43,6 +43,13 @@
       "when": 1791594609525,
       "tag": "0005_hot_sunfire",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791662694244,
+      "tag": "0006_graceful_blur",
+      "breakpoints": true
     }
   ]
 }

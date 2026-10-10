@@ -10,6 +10,7 @@ export const createUser = async (user: NewUser) => {
         createdAt: result.createdAt,
         updatedAt: result.updatedAt,
         email: result.email,
+        isChirpyRed: result.isChirpyRed,
     };
 };
 
@@ -32,6 +33,14 @@ export const updateUserById = async (userID: string, newParams: RequestUser) => 
     const [result] = await db.update(users).set({
         email: newParams.email,
         hashed_password: await hashPassword(newParams.password),
+    }).where(eq(users.id, userID)).returning();
+
+    return result;
+};
+
+export const upgradeUserChirpyById = async (userID: string) : Promise<NewUser | undefined> => {
+    const [result] = await db.update(users).set({
+        isChirpyRed: true
     }).where(eq(users.id, userID)).returning();
 
     return result;

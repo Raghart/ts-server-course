@@ -9,7 +9,8 @@ import { checkRefreshTokenHandler, chirpyHealthHandler, chirpyMetricsHandler, ch
     getSingleChirpHandler,
     loginUserHandler,
     replaceUserInformationHandler,
-    revokeRefreshTokenHandler} from "./httpHandlers.js";
+    revokeRefreshTokenHandler,
+    upgradeUserChirpyHandler} from "./httpHandlers.js";
 import postgres from "postgres";
 import { APICONFIG } from "./config.js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -31,6 +32,7 @@ app.get("/api/chirps", getAllChirpsHandler);
 app.get("/api/chirps/:chirpId", getSingleChirpHandler);
 app.post("/api/chirps", createChirpHandler);
 app.delete("/api/chirps/:chirpId", deleteChirpByIdHandler);
+app.post("/api/polka/webhooks", upgradeUserChirpyHandler);
 app.post("/api/login", loginUserHandler);
 app.post("/api/refresh", checkRefreshTokenHandler);
 app.post("/api/revoke", revokeRefreshTokenHandler);
