@@ -2,6 +2,7 @@ import argon2 from "argon2";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { UserNotAuthenticatedError } from "./errorTypes.js";
 import { Request } from "express";
+import crypto from "crypto";
 
 export const hashPassword = (password: string) : Promise<string> => {
     return argon2.hash(password);
@@ -65,4 +66,8 @@ export const getBearerToken = (req: Request) : string => {
     };
 
     return authenticationArray[1];
+};
+
+export const makeRefreshToken = () : string => {
+    return crypto.randomBytes(32).toString("hex");
 };
