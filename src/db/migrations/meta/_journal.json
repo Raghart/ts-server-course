@@ -36,6 +36,13 @@
       "when": 1791594567443,
       "tag": "0004_loose_masked_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791594609525,
+      "tag": "0005_hot_sunfire",
+      "breakpoints": true
     }
   ]
 }
