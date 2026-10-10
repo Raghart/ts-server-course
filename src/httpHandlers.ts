@@ -3,8 +3,9 @@ import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
 import { createUser, getUserByEmail, resetUsers } from "./db/queries/users.js";
 import { createChirp, getAllChirps, getChirpById } from "./db/queries/chirps.js";
-import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, validateJWT } from "./auth.js";
+import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "./auth.js";
 import { RequestUser } from "./db/schema.js";
+import { createRefreshToken } from "./db/queries/refreshTokens.js";
 
 export const chirpyMetricsHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/html; charset=utf-8").send(`<html>
@@ -45,7 +46,7 @@ export const loginUserHandler = async (req: Request, res: Response) => {
     const userToCheck: RequestUser = req.body;
     
     const dbUser = await getUserByEmail(userToCheck.email);
-    if (!dbUser) {
+    if (!dbUser || !dbUser?.id) {
         res.status(401).send("incorrect email or password");
         return;
     };
@@ -55,13 +56,15 @@ export const loginUserHandler = async (req: Request, res: Response) => {
         return;
     };
 
-    let expiresInSeconds = 3600;
+    const tokenJWT = makeJWT(dbUser.id!, 3600, APICONFIG.jwtSecret);
+    const expDate = new Date();
+    expDate.setDate(expDate.getDate() + 60);
 
-    if (userToCheck?.expiresInSeconds) {
-        expiresInSeconds = userToCheck.expiresInSeconds > 3600 ? 3600 : userToCheck.expiresInSeconds;
-    }
-
-    const tokenJWT = makeJWT(dbUser.id!, expiresInSeconds, APICONFIG.jwtSecret);
+    const refreshToken = await createRefreshToken({
+        token: makeRefreshToken(),
+        userId: dbUser.id,
+        expiresAt: expDate,
+    })
 
     res.status(200).send({
         id: dbUser.id,
@@ -69,6 +72,7 @@ export const loginUserHandler = async (req: Request, res: Response) => {
         createdAt: dbUser.createdAt,
         updatedAt: dbUser.updatedAt,
         token: tokenJWT,
+        refreshToken: refreshToken.token,
     })
 };
 
