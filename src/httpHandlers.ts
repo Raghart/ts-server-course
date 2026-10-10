@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
 import { createUser, getUserByEmail, getUserByRefreshToken, resetUsers, updateUserById } from "./db/queries/users.js";
-import { createChirp, getAllChirps, getChirpById } from "./db/queries/chirps.js";
+import { createChirp, deleteChirpById, getAllChirps, getChirpById } from "./db/queries/chirps.js";
 import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "./auth.js";
 import { RequestUser } from "./db/schema.js";
 import { createRefreshToken, getRefreshToken, revokeRefreshToken } from "./db/queries/refreshTokens.js";
@@ -173,6 +173,32 @@ export const replaceUserInformationHandler = async (req: Request, res: Response)
         createdAt: updatedUser.createdAt,
         updatedAt: updatedUser.updatedAt,
     })
+};
+
+export const deleteChirpByIdHandler = async (req: Request, res: Response) => {
+    let chirpId = req.params.chirpId;
+    if (Array.isArray(chirpId)) {
+        chirpId = chirpId[0];
+    };
+
+    const acessToken = getBearerToken(req);
+    const userID = validateJWT(acessToken, APICONFIG.jwtSecret);
+    const chirpToDelete = await getChirpById(chirpId);
+    
+    if (!chirpToDelete) {
+        throw new NotFoundError("Not found");
+    };
+
+    if (chirpToDelete.userId !== userID) {
+        throw new UserForbiddenError("Unathorized");
+    }
+
+    const deletedChirp = await deleteChirpById(chirpId);
+    if (!deletedChirp) {
+        return res.status(404).send("Not Found");
+    };
+
+    res.status(204).send();
 };
 
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {

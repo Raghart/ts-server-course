@@ -3,6 +3,7 @@ import { middlewareLogResponses, middlewareMetricsInc } from "./middlewares.js";
 import { checkRefreshTokenHandler, chirpyHealthHandler, chirpyMetricsHandler, chirpyResetMetricsHandler, 
     createChirpHandler, 
     createrUserHandler, 
+    deleteChirpByIdHandler, 
     errorHandler,
     getAllChirpsHandler,
     getSingleChirpHandler,
@@ -29,6 +30,7 @@ app.put("/api/users", replaceUserInformationHandler)
 app.get("/api/chirps", getAllChirpsHandler);
 app.get("/api/chirps/:chirpId", getSingleChirpHandler);
 app.post("/api/chirps", createChirpHandler);
+app.delete("/api/chirps/:chirpId", deleteChirpByIdHandler);
 app.post("/api/login", loginUserHandler);
 app.post("/api/refresh", checkRefreshTokenHandler);
 app.post("/api/revoke", revokeRefreshTokenHandler);
