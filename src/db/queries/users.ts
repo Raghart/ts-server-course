@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../index.js";
-import { NewUser, users } from "../schema.js";
+import { NewRefreshToken, NewUser, users } from "../schema.js";
 
 export const createUser = async (user: NewUser) => {
     const [result] = await db.insert(users).values(user).onConflictDoNothing().returning();
@@ -18,5 +18,11 @@ export const resetUsers = async () => {
 
 export const getUserByEmail = async (email: string) : Promise<NewUser | undefined> => {
     const [result] = await db.select().from(users).where(eq(users.email, email));
+    return result;
+};
+
+export const getUserByRefreshToken = 
+    async (refreshToken: NewRefreshToken) : Promise<NewUser | undefined> => {
+    const [result] = await db.select().from(users).where(eq(users.id, refreshToken.userId));
     return result;
 };

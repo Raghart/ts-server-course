@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { APICONFIG } from "./config.js";
 import { InvalidLengthError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errorTypes.js";
-import { createUser, getUserByEmail, resetUsers } from "./db/queries/users.js";
+import { createUser, getUserByEmail, getUserByRefreshToken, resetUsers } from "./db/queries/users.js";
 import { createChirp, getAllChirps, getChirpById } from "./db/queries/chirps.js";
 import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "./auth.js";
 import { RequestUser } from "./db/schema.js";
-import { createRefreshToken } from "./db/queries/refreshTokens.js";
+import { createRefreshToken, getRefreshToken } from "./db/queries/refreshTokens.js";
 
 export const chirpyMetricsHandler = (_req: Request, res: Response) => {
     res.set("Content-Type", "text/html; charset=utf-8").send(`<html>
@@ -128,6 +128,28 @@ export const getSingleChirpHandler = async (req: Request, res: Response) => {
     };
 
     res.status(200).send(chirp);
+};
+
+export const checkRefreshTokenHandler = async (req: Request, res: Response) => {
+    const token = getBearerToken(req);
+    
+    const refreshToken = await getRefreshToken(token);
+    if (!refreshToken || refreshToken.revokedAt) {
+        res.status(401).send("Unathorized");
+        return;
+    };
+
+    const dbUser = await getUserByRefreshToken(refreshToken);
+    if (!dbUser || !dbUser?.id) {
+        res.status(401).send("Unathorized");
+        return;
+    };
+
+    const newAcessToken = makeJWT(dbUser.id, 3600, APICONFIG.jwtSecret);
+
+    res.status(200).send({
+        token: newAcessToken,
+    });
 };
 
 export const errorHandler = (err: Error, _req: Request, res: Response, _next: NextFunction) => {

@@ -1,6 +1,6 @@
 import express from "express";
 import { middlewareLogResponses, middlewareMetricsInc } from "./middlewares.js";
-import { chirpyHealthHandler, chirpyMetricsHandler, chirpyResetMetricsHandler, 
+import { checkRefreshTokenHandler, chirpyHealthHandler, chirpyMetricsHandler, chirpyResetMetricsHandler, 
     createChirpHandler, 
     createrUserHandler, 
     errorHandler,
@@ -27,6 +27,7 @@ app.get("/api/chirps", getAllChirpsHandler);
 app.get("/api/chirps/:chirpId", getSingleChirpHandler);
 app.post("/api/chirps", createChirpHandler);
 app.post("/api/login", loginUserHandler);
+app.post("/api/refresh", checkRefreshTokenHandler);
 app.use("/api", middlewareLogResponses);
 app.use("/app", middlewareMetricsInc, express.static("./src/app"));
 app.use(errorHandler);
